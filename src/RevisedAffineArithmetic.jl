@@ -5,7 +5,7 @@ using FastRounding, IntervalArithmetic, StaticArrays
 import Base: +, -, *, /, ==, convert, promote_rule
 import IntervalArithmetic: ±
 
-export RevisedAffineForm, ±
+export RevisedAffineForm, ±, @rafvars
 
 include("affineform.jl")
 include("arithmetic.jl")
