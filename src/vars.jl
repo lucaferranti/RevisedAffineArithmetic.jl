@@ -35,3 +35,38 @@ function _rafvars(x...)
     config[:names] = collect(x)
     return ex
 end
+
+macro affinize(block)
+    if block.head == :tuple
+        nvars = length(block.args)
+        names = Vector{Symbol}(undef, nvars)
+        ex = quote end
+        for (i, var) in enumerate(block.args)
+            name, rhs = _affinize(var, nvars, i)
+            push!(ex.args, :($(esc(name)) = $rhs))
+            names[i] = name
+        end
+        config[:names] = names
+        return ex
+    elseif block.head == :(=)
+        name, rhs = _affinize(block, 1, 1)
+        config[:names] = [name]
+        return :($(esc(name)) = $rhs)
+    else
+        throw(ArgumentError("Invalid Statement"))
+    end
+end
+
+
+function _affinize(ex::Expr, n::Int, i::Int)
+    if ex.head == :(=)
+        name = ex.args[1]
+        p = eval(ex.args[2])
+        c, r = midpoint_radius(p)
+        coeffs = zeros(typeof(r), n)
+        coeffs[i] = r
+        return name, RevisedAffineForm(c, coeffs, 0)
+    else
+        throw(ArgumentError("Invalid Statement $ex"))
+    end
+end

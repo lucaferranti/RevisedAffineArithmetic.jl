@@ -11,3 +11,8 @@
     @test p2 == RevisedAffineForm(1.0, [1, 1, 0, 0], 2)
     @test string(p2) == "1.0 + 1.0x₁ + 1.0x₂ ± 2.0"
 end
+
+@testset "affinize" begin
+    @affinize (a=1 .. 2, b=3 .. 4)
+    @test a + b == RevisedAffineForm(5.0, @SVector([0.5, 0.5]), 0.0)
+end
